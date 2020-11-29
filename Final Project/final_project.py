@@ -1,22 +1,23 @@
+import os
 import getpass
 import smtplib  
-from email.mime.multipart import MIMEMultipart 
+from email.mime.multipart import MIMEMultipart #https://stackoverflow.com/questions/38825943/mimemultipart-mimetext-mimebase-and-payloads-for-sending-email-with-file-atta
 from email.mime.text import MIMEText 
 
 email_pengirim = 'untukcobacoba47@gmail.com' 
 daftar_penerima = 'penerima.txt'
 
 def read_file(nama_file):
-    with open(nama_file, 'r') as file:
+    with open(nama_file) as file: #https://www.w3schools.com/python/python_file_open.asp
         contents = file.readlines()
     return [item.strip() for item in contents]    
 	
-def send_email(alamat_penerima:list, password:str):
+def send_email(alamat_penerima, password):
     msg = MIMEMultipart()
     msg['From'] = email_pengirim
     msg['To'] = ','.join(alamat_penerima)
-    msg['Subject'] = 'Hahahahahaha'
-    msg.attach(MIMEText(body_email, 'plain'))
+    msg['Subject'] = subjek
+    msg.attach(MIMEText(body_email))
 	
     server = smtplib.SMTP(host='smtp.gmail.com', port=587)
     server.starttls()
@@ -24,21 +25,34 @@ def send_email(alamat_penerima:list, password:str):
     server.send_message(msg)
     server.quit()
 	
-if __name__ == '__main__':
+def get_password(keterangan):
     while True:
-        password = getpass.getpass('Password email: ')
+        password = getpass.getpass('{}: '.format(keterangan))#https://docs.python.org/3/library/getpass.html
         if password != "":
             break
-    body_email = input("Isi pesan: ")
+    return password
+
+def get_string(keterangan):
+    while True:
+        string = input('{}: '.format(keterangan))#https://docs.python.org/3/library/getpass.html
+        if string != "":
+            break
+    return string
+
+if __name__ == '__main__':
+    password = get_password("Masukkan password")
+    subjek = get_string("Subjek")
+    body_email = get_string("Isi pesan")
     try:
         alamat_penerima = read_file(daftar_penerima)
         print(f'Pengirim: {email_pengirim}')
         print(f'Penerima:')    
-        for nomor, alamat_email in enumerate(alamat_penerima):
-            print(f'{nomor+1:2}. {alamat_email}')        
+        for alamat_email in alamat_penerima:
+            print(alamat_email)        
         print()
         print('\nSedang mengirim...')
         send_email(alamat_penerima, password)        
         print('Berhasil terkirim.')
     except Exception as e:
-        print(f'Ada yang salah:\n{e}')
+        print(f'Ada yang salah\n{e}')
+    os.system('pause')
